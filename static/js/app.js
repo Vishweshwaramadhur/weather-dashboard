@@ -1,7 +1,8 @@
-const API_BASE_URL = 'http://127.0.0.1:5000/api';
+const API_BASE_URL = '/api';
 let map = null;
 let isCelsius = true;
 let currentWeatherData = null;
+let currentForecastData = null;
 
 function handleKeyPress(event) {
     if (event.key === 'Enter') {
@@ -42,6 +43,7 @@ function getCurrentLocationWeather() {
                 changeBackgroundByWeather(weatherData.data.description);
 
                 if (forecastData.success) {
+                    currentForecastData = forecastData.data;
                     displayForecast(forecastData.data);
                 }
 
@@ -50,7 +52,6 @@ function getCurrentLocationWeather() {
             } catch (error) {
                 showError('Unable to fetch weather data. Please try again.');
                 hideLoading();
-                console.error('Error:', error);
             }
         },
         (error) => {
@@ -77,7 +78,7 @@ async function searchWeather() {
     showLoading();
 
     try {
-        const weatherResponse = await fetch(`${API_BASE_URL}/weather/${city}`);
+        const weatherResponse = await fetch(`${API_BASE_URL}/weather/${encodeURIComponent(city)}`);
         const weatherData = await weatherResponse.json();
 
         if (!weatherData.success) {
@@ -86,7 +87,7 @@ async function searchWeather() {
             return;
         }
 
-        const forecastResponse = await fetch(`${API_BASE_URL}/forecast/${city}`);
+        const forecastResponse = await fetch(`${API_BASE_URL}/forecast/${encodeURIComponent(city)}`);
         const forecastData = await forecastResponse.json();
 
         currentWeatherData = weatherData.data;
@@ -95,6 +96,7 @@ async function searchWeather() {
         changeBackgroundByWeather(weatherData.data.description);
 
         if (forecastData.success) {
+            currentForecastData = forecastData.data;
             displayForecast(forecastData.data);
         }
 
@@ -103,7 +105,6 @@ async function searchWeather() {
     } catch (error) {
         showError('Unable to fetch weather data. Please try again.');
         hideLoading();
-        console.error('Error:', error);
     }
 }
 
@@ -122,7 +123,7 @@ function displayCurrentWeather(data) {
     document.getElementById('windSpeed').textContent = `${data.wind_speed} m/s`;
     document.getElementById('pressure').textContent = `${data.pressure} hPa`;
 
-    const iconUrl = `http://openweathermap.org/img/wn/${data.icon}@4x.png`;
+    const iconUrl = `https://openweathermap.org/img/wn/${data.icon}@4x.png`;
     document.getElementById('weatherIcon').src = iconUrl;
 
     document.getElementById('currentWeather').classList.remove('d-none');
@@ -132,11 +133,13 @@ function displayCurrentWeather(data) {
 function displayForecast(forecastData) {
     const forecastCards = document.getElementById('forecastCards');
     forecastCards.innerHTML = '';
+    const unit = isCelsius ? '°C' : '°F';
 
     forecastData.forEach((day) => {
         const date = new Date(day.date);
         const dayName = date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
-        const iconUrl = `http://openweathermap.org/img/wn/${day.icon}@2x.png`;
+        const iconUrl = `https://openweathermap.org/img/wn/${day.icon}@2x.png`;
+        const temp = isCelsius ? day.temperature : celsiusToFahrenheit(day.temperature);
 
         const card = `
             <div class="col-md-4 mb-3">
@@ -144,7 +147,7 @@ function displayForecast(forecastData) {
                     <div class="card-body text-center">
                         <h5 class="card-title">${dayName}</h5>
                         <img src="${iconUrl}" alt="Weather Icon" class="forecast-icon">
-                        <h3>${day.temperature}°C</h3>
+                        <h3>${temp}${unit}</h3>
                         <p class="text-capitalize">${day.description}</p>
                         <div class="row mt-2">
                             <div class="col-6">
@@ -240,6 +243,9 @@ function toggleTemperatureUnit() {
 
     if (currentWeatherData) {
         displayCurrentWeather(currentWeatherData);
+    }
+    if (currentForecastData) {
+        displayForecast(currentForecastData);
     }
 }
 
