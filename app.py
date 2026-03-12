@@ -10,7 +10,10 @@ app = Flask(__name__)
 CORS(app)
 
 API_KEY = os.getenv('OPENWEATHER_API_KEY')
-BASE_URL = "http://api.openweathermap.org/data/2.5"
+BASE_URL = "https://api.openweathermap.org/data/2.5"
+
+if not API_KEY:
+    raise RuntimeError("OPENWEATHER_API_KEY is not set. Please add it to your .env file.")
 
 
 def build_weather_data(data):
@@ -63,7 +66,7 @@ def get_weather_by_coords():
             return jsonify({'success': False, 'message': 'Latitude and longitude required'}), 400
 
         url = f"{BASE_URL}/weather?lat={lat}&lon={lon}&appid={API_KEY}&units=metric"
-        response = requests.get(url)
+        response = requests.get(url, timeout=10)
 
         if response.status_code == 200:
             return jsonify({'success': True, 'data': build_weather_data(response.json())})
@@ -77,7 +80,7 @@ def get_weather_by_coords():
 def get_weather(city):
     try:
         url = f"{BASE_URL}/weather?q={city}&appid={API_KEY}&units=metric"
-        response = requests.get(url)
+        response = requests.get(url, timeout=10)
 
         if response.status_code == 200:
             return jsonify({'success': True, 'data': build_weather_data(response.json())})
@@ -97,7 +100,7 @@ def get_forecast_by_coords():
             return jsonify({'success': False, 'message': 'Latitude and longitude required'}), 400
 
         url = f"{BASE_URL}/forecast?lat={lat}&lon={lon}&appid={API_KEY}&units=metric"
-        response = requests.get(url)
+        response = requests.get(url, timeout=10)
 
         if response.status_code == 200:
             return jsonify({'success': True, 'data': build_forecast_data(response.json())})
@@ -111,7 +114,7 @@ def get_forecast_by_coords():
 def get_forecast(city):
     try:
         url = f"{BASE_URL}/forecast?q={city}&appid={API_KEY}&units=metric"
-        response = requests.get(url)
+        response = requests.get(url, timeout=10)
 
         if response.status_code == 200:
             return jsonify({'success': True, 'data': build_forecast_data(response.json())})

@@ -31,27 +31,44 @@ git clone <your-repo-url>
 cd weather-dashboard
 ```
 
-2. Create `.env` file from sample
+2. Create and activate a virtual environment
+```bash
+python -m venv venv
+source venv/bin/activate   # On Windows: venv\Scripts\activate
+```
+
+3. Create `.env` file from sample
 ```bash
 cp .env.sample .env
 ```
 
-3. Add your OpenWeatherMap API key to `.env`
+4. Add your OpenWeatherMap API key to `.env`
 ```
 OPENWEATHER_API_KEY=your_api_key_here
 ```
 
-4. Install dependencies
+5. Install dependencies
 ```bash
 pip install -r requirements.txt
 ```
 
-5. Run the application
+6. Run the application
 ```bash
 python app.py
 ```
 
-6. Open browser at `http://127.0.0.1:5000`
+7. Open browser at `http://127.0.0.1:5000`
+
+## Docker
+
+1. Create `.env` file and add your API key (see Environment Variables section)
+
+2. Run with Docker Compose
+```bash
+docker-compose up --build
+```
+
+3. Open browser at `http://localhost:5000`
 
 ## Project Structure
 
@@ -59,8 +76,10 @@ python app.py
 weather-dashboard/
 ├── app.py
 ├── requirements.txt
-├── .env
-├── .env.sample
+├── Dockerfile
+├── docker-compose.yml
+├── .env            # Created by you (gitignored — never commit this)
+├── .env.sample     # Template to copy from
 ├── templates/
 │   └── index.html
 ├── static/
@@ -77,7 +96,7 @@ Create a `.env` file with the following variables:
 
 ```
 OPENWEATHER_API_KEY=your_api_key_here
-FLASK_DEBUG=True
+FLASK_DEBUG=False
 FLASK_PORT=5000
 ```
 

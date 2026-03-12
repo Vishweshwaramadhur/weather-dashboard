@@ -130,6 +130,12 @@ function displayCurrentWeather(data) {
     document.getElementById('unitToggle').classList.remove('d-none');
 }
 
+function escapeHTML(str) {
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+}
+
 function displayForecast(forecastData) {
     const forecastCards = document.getElementById('forecastCards');
     forecastCards.innerHTML = '';
@@ -138,17 +144,17 @@ function displayForecast(forecastData) {
     forecastData.forEach((day) => {
         const date = new Date(day.date);
         const dayName = date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
-        const iconUrl = `https://openweathermap.org/img/wn/${day.icon}@2x.png`;
+        const iconUrl = `https://openweathermap.org/img/wn/${escapeHTML(day.icon)}@2x.png`;
         const temp = isCelsius ? day.temperature : celsiusToFahrenheit(day.temperature);
 
         const card = `
             <div class="col-md-4 mb-3">
                 <div class="card forecast-card">
                     <div class="card-body text-center">
-                        <h5 class="card-title">${dayName}</h5>
+                        <h5 class="card-title">${escapeHTML(dayName)}</h5>
                         <img src="${iconUrl}" alt="Weather Icon" class="forecast-icon">
                         <h3>${temp}${unit}</h3>
-                        <p class="text-capitalize">${day.description}</p>
+                        <p class="text-capitalize">${escapeHTML(day.description)}</p>
                         <div class="row mt-2">
                             <div class="col-6">
                                 <small><i class="bi bi-droplet"></i> ${day.humidity}%</small>
@@ -205,7 +211,7 @@ function displayMap(lat, lon, cityName) {
 
         L.marker([lat, lon])
             .addTo(map)
-            .bindPopup(`<b>${cityName}</b><br>Latitude: ${lat}<br>Longitude: ${lon}`)
+            .bindPopup(`<b>${escapeHTML(cityName)}</b><br>Latitude: ${lat}<br>Longitude: ${lon}`)
             .openPopup();
 
         map.invalidateSize();
